@@ -1,0 +1,9 @@
+﻿<html>
+Phiên bản: 1.0
+<br>
+Tác giả: Bạch Minh Đức
+<br>
+Email: minhduc150496@gmail.com
+<br>
+Facebook: <a href="https://www.facebook.com/datiengobou">www.facebook.com/datiengobou</a>
+</html>
