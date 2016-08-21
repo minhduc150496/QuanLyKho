@@ -474,8 +474,6 @@ public class Main extends javax.swing.JFrame {
         productDetails1.loadProduct(product);
         detailsDialog.setVisible(true);
         
-        System.out.println(product.getKomponentList().size());
-        System.out.println(product.getSerials());
     }//GEN-LAST:event_btnDetailsActionPerformed
 
     /**

@@ -16,6 +16,7 @@ import business.Product;
  */
 public class ProductDetails extends javax.swing.JPanel {
     private KomponentList komponentList = null;
+    private KomponentList searchList = null;
     private ProductDetailsTableModel model = new ProductDetailsTableModel();
 
     public ProductDetailsTableModel getModel() {
@@ -73,6 +74,11 @@ public class ProductDetails extends javax.swing.JPanel {
         txtSearch.setText("Nhập chính xác serial");
 
         btnSearch.setText("Tìm kiếm");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
 
         btnAdd.setText("Thêm");
         btnAdd.addActionListener(new java.awt.event.ActionListener() {
@@ -133,6 +139,13 @@ public class ProductDetails extends javax.swing.JPanel {
         jTable.updateUI();
         jTable.setRowSelectionInterval(row-1, row-1);
     }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        String serial = txtSearch.getText();
+        searchList = komponentList.search(serial);
+        model.setKomponentList(searchList);
+        jTable.updateUI();
+    }//GEN-LAST:event_btnSearchActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
