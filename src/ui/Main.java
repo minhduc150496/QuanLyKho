@@ -6,15 +6,18 @@
 
 package ui;
 
+import business.Komponent;
+import business.KomponentList;
 import business.Product;
 import business.ProductList;
+import java.awt.Dialog;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
@@ -46,6 +49,7 @@ public class Main extends javax.swing.JFrame {
         model = new ProductTableModel();
         allProducts = model.getProductList();
         jTable.setModel(model);
+        
     }
 
     /**
@@ -60,6 +64,8 @@ public class Main extends javax.swing.JFrame {
         aboutDialog = new javax.swing.JDialog();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        detailsDialog = new javax.swing.JDialog();
+        productDetails1 = new ui.ProductDetails();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable = new javax.swing.JTable();
         jToolBar1 = new javax.swing.JToolBar();
@@ -68,6 +74,7 @@ public class Main extends javax.swing.JFrame {
         btnDelete = new javax.swing.JButton();
         btnUp = new javax.swing.JButton();
         btnDown = new javax.swing.JButton();
+        btnDetails = new javax.swing.JButton();
         jToolBar2 = new javax.swing.JToolBar();
         txtSearch = new javax.swing.JTextField();
         btnSearch = new javax.swing.JButton();
@@ -109,6 +116,22 @@ public class Main extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        detailsDialog.setMinimumSize(new java.awt.Dimension(400, 300));
+        detailsDialog.setModal(true);
+
+        productDetails1.setMinimumSize(new java.awt.Dimension(400, 300));
+
+        javax.swing.GroupLayout detailsDialogLayout = new javax.swing.GroupLayout(detailsDialog.getContentPane());
+        detailsDialog.getContentPane().setLayout(detailsDialogLayout);
+        detailsDialogLayout.setHorizontalGroup(
+            detailsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(productDetails1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+        detailsDialogLayout.setVerticalGroup(
+            detailsDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(productDetails1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -193,6 +216,17 @@ public class Main extends javax.swing.JFrame {
         });
         jToolBar1.add(btnDown);
 
+        btnDetails.setText("Chi tiết");
+        btnDetails.setFocusable(false);
+        btnDetails.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnDetails.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDetailsActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(btnDetails);
+
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
@@ -267,7 +301,7 @@ public class Main extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -329,7 +363,12 @@ public class Main extends javax.swing.JFrame {
             for (int i = 0; i < allProducts.size(); i++) {
                 sheet.addCell(new Label(0, i+1, i+1+""));
                 sheet.addCell(new Label(1, i+1, allProducts.get(i).getName()));
-                sheet.addCell(new Label(2, i+1, allProducts.get(i).getSerials()));
+                KomponentList komponentList = allProducts.get(i).getKomponentList();
+                for (int j = 0; j < komponentList.size(); j++) {
+                    Komponent komponent = komponentList.get(j);
+                    sheet.addCell(new Label(j*2+2, i+1, komponent.getName()));
+                    sheet.addCell(new Label(j*2+3, i+1, komponent.getSerial()));
+                }
             }
             
             workbook.write();
@@ -356,16 +395,25 @@ public class Main extends javax.swing.JFrame {
             
             ProductList newList = new ProductList();
             for (int row = 1; row < sheet.getRows(); row++) {
+                ///sheet.getColumns();
                 // 1. check stt
                 String stt = sheet.getCell(0, row).getContents();
                 if (stt.equals("")) break;
                 // 2. get Cell content
                 String name = sheet.getCell(1, row).getContents();
-                String serials = sheet.getCell(2, row).getContents();
+                
+                KomponentList komponentList = new KomponentList();
+                for(int col = 2; col < sheet.getColumns(); col+=2) {
+                    Komponent komponent = new Komponent();
+                    komponent.setName(sheet.getCell(col, row).getContents());
+                    komponent.setSerial(sheet.getCell(col+1, row).getContents());
+                    komponentList.add(komponent);
+                }
+                
                 // 3. add new product
                 Product product = new Product();
                 product.setName(name);
-                product.setSerials(serials);
+                product.setKomponentList(komponentList);
                 newList.add(product);
             }
             
@@ -418,6 +466,18 @@ public class Main extends javax.swing.JFrame {
         jTable.setRowSelectionInterval(row+1, row+1);
     }//GEN-LAST:event_btnDownActionPerformed
 
+    private void btnDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetailsActionPerformed
+        int row = jTable.getSelectedRow();
+        if (row < 0) return; // no select
+        
+        Product product = allProducts.get(row);        
+        productDetails1.loadProduct(product);
+        detailsDialog.setVisible(true);
+        
+        System.out.println(product.getKomponentList().size());
+        System.out.println(product.getSerials());
+    }//GEN-LAST:event_btnDetailsActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -457,6 +517,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JDialog aboutDialog;
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnDetails;
     private javax.swing.JButton btnDown;
     private javax.swing.JMenuItem btnExit;
     private javax.swing.JMenu btnFile;
@@ -465,6 +526,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JButton btnSearch;
     private javax.swing.JButton btnUp;
     private javax.swing.JButton btnViewAll;
+    private javax.swing.JDialog detailsDialog;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JMenuBar jMenuBar1;
@@ -475,6 +537,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenuItem mnAbout;
     private javax.swing.JMenuItem mnExport;
     private javax.swing.JMenu mnHelp;
+    private ui.ProductDetails productDetails1;
     private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

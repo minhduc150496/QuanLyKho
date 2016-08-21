@@ -19,6 +19,7 @@ public class Product implements Serializable {
     private String serials = "";
     private double price = 0;
     private int qty = 0;
+    private KomponentList komponentList = null;
 
     /**
      * @return the code
@@ -94,7 +95,13 @@ public class Product implements Serializable {
      * @return the serials
      */
     public String getSerials() {
-        return serials;
+        String s = "";        
+        for(Komponent komponent: komponentList) {
+            s += ", " + komponent.getSerial();
+        }
+        if (s.isEmpty()==false) s = s.substring(1);
+        this.serials = s;
+        return s;
     }
 
     /**
@@ -102,6 +109,27 @@ public class Product implements Serializable {
      */
     public void setSerials(String serials) {
         this.serials = serials;
+        String[] a = serials.split(",");
+        komponentList = new KomponentList();
+        for(String s: a) {
+            Komponent komponent = new Komponent();
+            komponent.setSerial(s.trim());
+            komponentList.add(komponent);
+        }
+    }
+
+    /**
+     * @return the komponentList
+     */
+    public KomponentList getKomponentList() {
+        return komponentList;
+    }
+
+    /**
+     * @param komponentList the komponentList to set
+     */
+    public void setKomponentList(KomponentList komponentList) {
+        this.komponentList = komponentList;
     }
         
 }
